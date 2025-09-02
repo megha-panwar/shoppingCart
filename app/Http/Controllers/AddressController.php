@@ -36,8 +36,10 @@ class AddressController extends Controller
             'postal_code' => 'required|string|max:20',
             'phone'       => ['required','string','max:30'],
             'is_default'  => 'sometimes|boolean',
+            // 'pin_code' => 'required'
         ]);
 
+        // getting auth id
         $data['user_id'] = auth()->id();
         $data['is_default'] = $request->has('is_default') && $request->boolean('is_default');
 
@@ -52,7 +54,7 @@ class AddressController extends Controller
 
     public function edit(Address $address)
     {
-        abort_unless($address->user_id === auth()->id(), 403);
+        abort_unless($address->user_id === auth()->id(), 403); // for check authenticate user can access only thier data
         return view('addresses.edit', compact('address'));
     }
 
@@ -84,7 +86,7 @@ class AddressController extends Controller
     {
         abort_unless($address->user_id === auth()->id(), 403);
 
-        $address->delete();
+        $address->delete(); 
 
         if (auth()->user()->addresses()->where('is_default', true)->count() === 0) {
             $first = auth()->user()->addresses()->latest()->first();
