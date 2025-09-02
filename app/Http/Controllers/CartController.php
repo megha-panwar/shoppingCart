@@ -15,10 +15,11 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        $total = $cart->sum(fn($i) => $i->product->price * $i->quantity);
+        $total = $cart->sum(fn($i) => $i->product->price * $i->quantity); // calculate the total price in cart
 
         return view('cart.index', compact('cart', 'total'));
     }
+
 
     public function add(Request $request, $id)
     {
@@ -32,16 +33,21 @@ class CartController extends Controller
         if ($cart) {
             $cart->quantity += $quantity;
             $cart->save();
-        } else {
+        } else {            
+            // add into the cart
             Cart::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product->id,
                 'quantity' => $quantity,
             ]);
         }
-
         return redirect()->back()->with('success', 'Product added to cart.');
     }
+
+    /**
+     * Update cart
+     * 
+     */
 
 public function update(Request $request, $id)
 {
@@ -92,10 +98,9 @@ public function update(Request $request, $id)
     return redirect()->route('cart.index')->with('success', 'Cart updated.');
 }
 
-
     public function remove($id)
     {
-        Cart::where('user_id', Auth::id())
+        Cart::where('user_id', Auth::id())  // product delete from cart
             ->where('product_id', $id)
             ->delete();
 
@@ -108,4 +113,3 @@ public function update(Request $request, $id)
         return redirect()->route('cart.index')->with('success', 'Cart cleared.');
     }
 }
-
